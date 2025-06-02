@@ -115,7 +115,7 @@ export class Watcher<T extends GenericClass> {
     filters: Filters,
     callback: WatchAction<T>,
     watchCfg: WatchCfg = {},
-    kubeConfig?: KubeConfig,
+    kubeConfig?: KubeConfig | undefined,
   ) {
     // Set the retry delay to 5 seconds if not specified
     watchCfg.resyncDelaySec ??= 5;

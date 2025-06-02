@@ -309,7 +309,7 @@ export function K8s<T extends GenericClass, K extends KubernetesObject = Instanc
    * @see {@link K8sInit.Watch}
    */
   function Watch(callback: WatchAction<T>, watchCfg?: WatchCfg) {
-    return new Watcher(model, filters, callback, watchCfg);
+    return new Watcher(model, filters, callback, watchCfg, kubeConfig);
   }
 
   /**
