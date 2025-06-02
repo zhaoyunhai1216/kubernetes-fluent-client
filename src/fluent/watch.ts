@@ -58,6 +58,7 @@ const OVERRIDE = 100;
 /** A wrapper around the Kubernetes watch API. */
 export class Watcher<T extends GenericClass> {
   // User-provided properties
+  #kubeConfig: string;
   #model: T;
   #filters: Filters;
   #callback: WatchAction<T>;
@@ -106,8 +107,15 @@ export class Watcher<T extends GenericClass> {
    * @param filters - (optional) filter overrides, can also be chained
    * @param callback - the callback function to call when an event is received
    * @param watchCfg - (optional) watch configuration
+   * @param kubeConfig (optional) watch kubeConfig
    */
-  constructor(model: T, filters: Filters, callback: WatchAction<T>, watchCfg: WatchCfg = {}) {
+  constructor(
+    model: T,
+    filters: Filters,
+    callback: WatchAction<T>,
+    watchCfg: WatchCfg = {},
+    kubeConfig: string = "",
+  ) {
     // Set the retry delay to 5 seconds if not specified
     watchCfg.resyncDelaySec ??= 5;
 
@@ -147,6 +155,8 @@ export class Watcher<T extends GenericClass> {
 
     // Create a new AbortController
     this.#abortController = new AbortController();
+
+    this.#kubeConfig = kubeConfig;
   }
 
   /**
@@ -196,7 +206,7 @@ export class Watcher<T extends GenericClass> {
     continueToken?: string,
   ): K8sConfigPromise => {
     // Build the path and query params for the resource, excluding the name
-    const { opts, serverUrl } = await k8sCfg("GET");
+    const { opts, serverUrl } = await k8sCfg("GET", this.#kubeConfig);
     const k8sUrl = serverUrl instanceof URL ? serverUrl.toString() : serverUrl;
     const url = pathBuilder(k8sUrl, this.#model, this.#filters, true);
 

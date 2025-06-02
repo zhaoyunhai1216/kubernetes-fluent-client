@@ -243,6 +243,13 @@ export type K8sInit<T extends GenericClass, K extends KubernetesObject> = K8sWit
      * @param namespace - the namespace to filter on
      * @returns the fluent API
      */
+    InKubeConfig: (config: string) => object;
+    /**
+     * Set the namespace filter.
+     *
+     * @param namespace - the namespace to filter on
+     * @returns the fluent API
+     */
     InNamespace: (namespace: string) => K8sWithFilters<T, K>;
   };
 

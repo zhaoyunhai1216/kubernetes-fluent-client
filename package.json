@@ -1,6 +1,6 @@
 {
-  "name": "kubernetes-fluent-client",
-  "version": "0.0.0-development",
+  "name": "@maozushuaimao/kubernetes-fluent-client",
+  "version": "3.5.6",
   "description": "A @kubernetes/client-node fluent API wrapper that leverages K8s Server Side Apply.",
   "bin": "./dist/cli.js",
   "main": "dist/index.js",
@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/defenseunicorns/kubernetes-fluent-client.git"
+    "url": "git+https://github.com/zhaoyunhai1216/kubernetes-fluent-client.git"
   },
   "keywords": [
     "kubernetes",
@@ -20,12 +20,12 @@
     "devsecops",
     "api"
   ],
-  "author": "Defense Unicorns",
+  "author": "maozushuaimao",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/defenseunicorns/kubernetes-fluent-client/issues"
+    "url": "https://github.com/zhaoyunhai1216/kubernetes-fluent-client/issues"
   },
-  "homepage": "https://github.com/defenseunicorns/kubernetes-fluent-client#readme",
+  "homepage": "https://github.com/zhaoyunhai1216/kubernetes-fluent-client#readme",
   "files": [
     "/src",
     "/dist",

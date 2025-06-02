@@ -25,6 +25,7 @@ export function K8s<T extends GenericClass, K extends KubernetesObject = Instanc
   model: T,
   filters: Filters = {},
 ): K8sInit<T, K> {
+  let kubeConfig: string = "";
   const withFilters = { WithField, WithLabel, Get, Delete, Evict, Watch, Logs };
   const matchedKind = filters.kindOverride || modelToGroupVersionKind(model.name);
 
@@ -39,6 +40,14 @@ export function K8s<T extends GenericClass, K extends KubernetesObject = Instanc
 
     filters.namespace = namespace;
     return withFilters;
+  }
+
+  /**
+   * @inheritdoc
+   */
+  function InKubeConfig(config: string) {
+    kubeConfig = config;
+    return { InNamespace, Apply, Create, Patch, PatchStatus, Raw, ...withFilters };
   }
 
   /**
@@ -114,7 +123,7 @@ export function K8s<T extends GenericClass, K extends KubernetesObject = Instanc
     }
 
     try {
-      const object = await k8sExec<T, K>(model, filters, "GET");
+      const object = await k8sExec<T, K>(model, filters, "GET", undefined, undefined, kubeConfig);
 
       if (kind !== "Pod") {
         if (kind === "Service") {
@@ -144,7 +153,14 @@ export function K8s<T extends GenericClass, K extends KubernetesObject = Instanc
 
     const podModel = { ...model, name: "V1Pod" };
     const logPromises = podList.map(po =>
-      k8sExec<T, string>(podModel, { ...filters, name: po.metadata!.name! }, "LOG"),
+      k8sExec<T, string>(
+        podModel,
+        { ...filters, name: po.metadata!.name! },
+        "LOG",
+        undefined,
+        undefined,
+        kubeConfig,
+      ),
     );
 
     const responses = await Promise.all(logPromises);
@@ -179,7 +195,14 @@ export function K8s<T extends GenericClass, K extends KubernetesObject = Instanc
       filters.name = name;
     }
 
-    return k8sExec<T, K | KubernetesListObject<K>>(model, filters, "GET");
+    return k8sExec<T, K | KubernetesListObject<K>>(
+      model,
+      filters,
+      "GET",
+      undefined,
+      undefined,
+      kubeConfig,
+    );
   }
 
   /**
@@ -195,7 +218,7 @@ export function K8s<T extends GenericClass, K extends KubernetesObject = Instanc
 
     try {
       // Try to delete the resource
-      await k8sExec<T, void>(model, filters, "DELETE");
+      await k8sExec<T, void>(model, filters, "DELETE", undefined, undefined, kubeConfig);
     } catch (e) {
       // If the resource doesn't exist, ignore the error
       if (e.status === StatusCodes.NOT_FOUND) {
@@ -215,7 +238,7 @@ export function K8s<T extends GenericClass, K extends KubernetesObject = Instanc
     applyCfg: ApplyCfg = { force: false },
   ): Promise<K> {
     syncFilters(resource as K);
-    return k8sExec(model, filters, "APPLY", resource, applyCfg);
+    return k8sExec(model, filters, "APPLY", resource, applyCfg, kubeConfig);
   }
 
   /**
@@ -224,7 +247,7 @@ export function K8s<T extends GenericClass, K extends KubernetesObject = Instanc
    */
   async function Create(resource: K): Promise<K> {
     syncFilters(resource);
-    return k8sExec(model, filters, "POST", resource);
+    return k8sExec(model, filters, "POST", resource, undefined, kubeConfig);
   }
 
   /**
@@ -248,7 +271,7 @@ export function K8s<T extends GenericClass, K extends KubernetesObject = Instanc
         },
       };
       // Try to evict the resource
-      await k8sExec<T, void>(model, filters, "POST", evictionPayload);
+      await k8sExec<T, void>(model, filters, "POST", evictionPayload, undefined, kubeConfig);
     } catch (e) {
       // If the resource doesn't exist, ignore the error
       if (e.status === StatusCodes.NOT_FOUND) {
@@ -268,7 +291,7 @@ export function K8s<T extends GenericClass, K extends KubernetesObject = Instanc
       throw new Error("No operations specified");
     }
 
-    return k8sExec(model, filters, "PATCH", payload);
+    return k8sExec(model, filters, "PATCH", payload, undefined, kubeConfig);
   }
 
   /**
@@ -277,7 +300,7 @@ export function K8s<T extends GenericClass, K extends KubernetesObject = Instanc
    */
   async function PatchStatus(resource: PartialDeep<K>): Promise<K> {
     syncFilters(resource as K);
-    return k8sExec(model, filters, "PATCH_STATUS", resource);
+    return k8sExec(model, filters, "PATCH_STATUS", resource, undefined, kubeConfig);
   }
 
   /**
@@ -293,7 +316,7 @@ export function K8s<T extends GenericClass, K extends KubernetesObject = Instanc
    * @see {@link K8sInit.Raw}
    */
   async function Raw(url: string, method: FetchMethods = "GET") {
-    const thing = await k8sCfg(method);
+    const thing = await k8sCfg(method, kubeConfig);
     const { opts, serverUrl } = thing;
     const resp = await fetch<K>(`${serverUrl}${url}`, opts);
 
@@ -304,5 +327,5 @@ export function K8s<T extends GenericClass, K extends KubernetesObject = Instanc
     throw resp;
   }
 
-  return { InNamespace, Apply, Create, Patch, PatchStatus, Raw, ...withFilters };
+  return { InKubeConfig, InNamespace, Apply, Create, Patch, PatchStatus, Raw, ...withFilters };
 }
