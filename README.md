@@ -1,3 +1,8 @@
+该模块是Defense Unicorns 编写的kubernetes-fluent-client的一个分支。
+
+我们对其进行了分叉并进行维护以满足个人的需求。
+
+
 # Kubernetes Fluent Client for Node
 
 [![Npm package license](https://badgen.net/npm/license/kubernetes-fluent-client)](https://npmjs.com/package/kubernetes-fluent-client)
