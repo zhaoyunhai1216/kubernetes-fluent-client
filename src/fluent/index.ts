@@ -28,7 +28,7 @@ export function K8s<T extends GenericClass, K extends KubernetesObject = Instanc
   const withFilters = { WithField, WithLabel, Get, Delete, Evict, Watch, Logs };
   const matchedKind = filters.kindOverride || modelToGroupVersionKind(model.name);
 
-  let kubeConfig: KubeConfig;
+  let kubeConfig: KubeConfig | undefined;
 
   /**
    * @inheritdoc

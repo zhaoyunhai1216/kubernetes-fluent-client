@@ -8,6 +8,7 @@ import { GenericClass, KubernetesListObject } from "../types";
 import { Filters, WatchAction, WatchPhase, K8sConfigPromise } from "./types";
 import { k8sCfg, pathBuilder, getHeaders } from "./utils";
 import { Readable } from "stream";
+import { KubeConfig } from "@kubernetes/client-node";
 
 export enum WatchEvent {
   /** Watch is connected successfully */
@@ -58,7 +59,7 @@ const OVERRIDE = 100;
 /** A wrapper around the Kubernetes watch API. */
 export class Watcher<T extends GenericClass> {
   // User-provided properties
-  #kubeConfig: string;
+  #kubeConfig: KubeConfig | undefined;
   #model: T;
   #filters: Filters;
   #callback: WatchAction<T>;
@@ -114,7 +115,7 @@ export class Watcher<T extends GenericClass> {
     filters: Filters,
     callback: WatchAction<T>,
     watchCfg: WatchCfg = {},
-    kubeConfig: string = "",
+    kubeConfig?: KubeConfig,
   ) {
     // Set the retry delay to 5 seconds if not specified
     watchCfg.resyncDelaySec ??= 5;

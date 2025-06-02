@@ -164,7 +164,10 @@ export function pathBuilder<T extends GenericClass>(
  * @param kubeConfig (optional) kubeConfig
  * @returns the fetch options and server URL
  */
-export async function k8sCfg(method: FetchMethods, kubeConfig?: KubeConfig): K8sConfigPromise {
+export async function k8sCfg(
+  method: FetchMethods,
+  kubeConfig?: KubeConfig | undefined,
+): K8sConfigPromise {
   if (!kubeConfig) {
     kubeConfig = new KubeConfig();
     kubeConfig.loadFromDefault();
@@ -224,7 +227,7 @@ export async function k8sExec<T extends GenericClass, K>(
   method: FetchMethods,
   payload?: K | unknown,
   applyCfg: ApplyCfg = { force: false },
-  kubeConfig?: KubeConfig,
+  kubeConfig?: KubeConfig | undefined,
 ) {
   const reconstruct = async (method: FetchMethods): K8sConfigPromise => {
     const configMethod = method === "LOG" ? "GET" : method;
