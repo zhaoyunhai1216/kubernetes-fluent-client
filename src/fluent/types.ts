@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // SPDX-FileCopyrightText: 2023-Present The Kubernetes Fluent Client Authors
 
-import { KubernetesListObject, KubernetesObject } from "@kubernetes/client-node";
+import { KubeConfig, KubernetesListObject, KubernetesObject } from "@kubernetes/client-node";
 import { Operation } from "fast-json-patch";
 import type { PartialDeep } from "type-fest";
 import { RequestInit } from "undici";
@@ -243,7 +243,7 @@ export type K8sInit<T extends GenericClass, K extends KubernetesObject> = K8sWit
      * @param namespace - the namespace to filter on
      * @returns the fluent API
      */
-    InKubeConfig: (config: string) => object;
+    InKubeConfig: (kubeConfig: KubeConfig) => object;
     /**
      * Set the namespace filter.
      *

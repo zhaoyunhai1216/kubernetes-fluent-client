@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // SPDX-FileCopyrightText: 2023-Present The Kubernetes Fluent Client Authors
 
-import { KubernetesListObject, KubernetesObject } from "@kubernetes/client-node";
+import { KubeConfig, KubernetesListObject, KubernetesObject } from "@kubernetes/client-node";
 import { Operation } from "fast-json-patch";
 import { StatusCodes } from "http-status-codes";
 import type { PartialDeep } from "type-fest";
@@ -25,9 +25,10 @@ export function K8s<T extends GenericClass, K extends KubernetesObject = Instanc
   model: T,
   filters: Filters = {},
 ): K8sInit<T, K> {
-  let kubeConfig: string = "";
   const withFilters = { WithField, WithLabel, Get, Delete, Evict, Watch, Logs };
   const matchedKind = filters.kindOverride || modelToGroupVersionKind(model.name);
+
+  let kubeConfig: KubeConfig;
 
   /**
    * @inheritdoc
@@ -45,7 +46,7 @@ export function K8s<T extends GenericClass, K extends KubernetesObject = Instanc
   /**
    * @inheritdoc
    */
-  function InKubeConfig(config: string) {
+  function InKubeConfig(config: KubeConfig) {
     kubeConfig = config;
     return { InNamespace, Apply, Create, Patch, PatchStatus, Raw, ...withFilters };
   }

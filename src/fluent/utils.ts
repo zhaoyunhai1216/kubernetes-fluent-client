@@ -161,15 +161,13 @@ export function pathBuilder<T extends GenericClass>(
  * - The K8s lib uses request instead of node-fetch today so the object is slightly different
  *
  * @param method - the HTTP method to use
- * @param config (optional) watch kubeConfig
+ * @param kubeConfig (optional) kubeConfig
  * @returns the fetch options and server URL
  */
-export async function k8sCfg(method: FetchMethods, config: string = ""): K8sConfigPromise {
-  const kubeConfig = new KubeConfig();
-  if (!config || config === "") {
+export async function k8sCfg(method: FetchMethods, kubeConfig?: KubeConfig): K8sConfigPromise {
+  if (!kubeConfig) {
+    kubeConfig = new KubeConfig();
     kubeConfig.loadFromDefault();
-  } else {
-    kubeConfig.loadFromString(config);
   }
 
   const cluster = kubeConfig.getCurrentCluster();
@@ -217,7 +215,7 @@ const isEvictionPayload = (payload: unknown): payload is Eviction =>
  * @param payload - (optional) the payload to send
  * @param applyCfg - (optional) configuration for the apply method
  *
- * @param config (optional) watch kubeConfig
+ * @param kubeConfig (optional) kubeConfig
  * @returns the parsed JSON response
  */
 export async function k8sExec<T extends GenericClass, K>(
@@ -226,11 +224,11 @@ export async function k8sExec<T extends GenericClass, K>(
   method: FetchMethods,
   payload?: K | unknown,
   applyCfg: ApplyCfg = { force: false },
-  config: string = "",
+  kubeConfig?: KubeConfig,
 ) {
   const reconstruct = async (method: FetchMethods): K8sConfigPromise => {
     const configMethod = method === "LOG" ? "GET" : method;
-    const { opts, serverUrl } = await k8sCfg(configMethod, config);
+    const { opts, serverUrl } = await k8sCfg(configMethod, kubeConfig);
 
     // Build the base path once, using excludeName only for standard POST requests
     const shouldExcludeName = method === "POST" && !(payload && isEvictionPayload(payload));
